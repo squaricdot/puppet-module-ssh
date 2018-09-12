@@ -86,6 +86,8 @@ class ssh (
   $sshd_pamauthenticationviakbdint        = 'USE_DEFAULTS',
   $sshd_gssapicleanupcredentials          = 'USE_DEFAULTS',
   $sshd_acceptenv                         = 'USE_DEFAULTS',
+  $sshd_acceptenv_defaults                = [],
+  $sshd_acceptenv_custom                  = [],
   $sshd_config_hostkey                    = 'USE_DEFAULTS',
   $sshd_listen_address                    = undef,
   $sshd_hostbasedauthentication           = 'no',
@@ -878,6 +880,17 @@ class ssh (
 
   if $sshd_config_allowagentforwarding != undef {
     validate_re($sshd_config_allowagentforwarding, '^(yes|no)$', "ssh::sshd_config_allowagentforwarding may be either 'yes' or 'no' and is set to <${sshd_config_allowagentforwarding}>.")
+  }
+
+  $sshd_acceptenv_defaults_list = [
+    'LANG', 'LC_CTYPE', 'LC_NUMERIC', 'LC_TIME', 'LC_COLLATE',
+    'LC_MONETARY', 'LC_MESSAGES', 'LC_PAPER', 'LC_NAME', 'LC_ADDRESS',
+    'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION', 'LC_ALL' ]
+
+  if (size($sshd_acceptenv_defaults) == 0 ) {
+    $sshd_acceptenv_conf = unique(concat($sshd_acceptenv_defaults_list, $sshd_acceptenv_custom))
+  } else {
+    $sshd_acceptenv_conf = unique(concat($sshd_acceptenv_defaults_list, $sshd_acceptenv_custom))
   }
 
   package { $packages_real:
